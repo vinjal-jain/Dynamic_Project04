@@ -10,6 +10,8 @@ import in.co.rays.bean.TimetableBean;
 import in.co.rays.util.JDBCDataSource;
 
 public class TimetableModel {
+	
+
 	public long nextPk() throws Exception {
 		long pk = 0;
 		Connection conn = JDBCDataSource.getConnection();
@@ -31,7 +33,7 @@ public class TimetableModel {
 		pstmt.setString(3, bean.getDescription());
 		pstmt.setDate(4, new java.sql.Date(bean.getExamDate().getTime()));
 		pstmt.setString(5, bean.getExamTime());
-		pstmt.setLong(6,bean.getCourseld());
+		pstmt.setLong(6,bean.getCourseId());
 		pstmt.setString(7,bean.getCourseName());
 		pstmt.setLong(8,bean.getSubjectId());
 		pstmt.setString(9,bean.getSubjectName());
@@ -54,7 +56,7 @@ public class TimetableModel {
 		pstmt.setString(2, bean.getDescription());
 		pstmt.setDate(3, new java.sql.Date(bean.getExamDate().getTime()));
 		pstmt.setString(4, bean.getExamTime());
-		pstmt.setLong(5,bean.getCourseld());
+		pstmt.setLong(5,bean.getCourseId());
 		pstmt.setString(6,bean.getCourseName());
 		pstmt.setLong(7,bean.getSubjectId());
 		pstmt.setString(8,bean.getSubjectName());
@@ -79,48 +81,48 @@ public class TimetableModel {
 
 	}
 
-	public CourseBean findByPk(long id) throws Exception {
+	public TimetableBean findByPk(long id) throws Exception {
 		Connection conn = JDBCDataSource.getConnection();
-		PreparedStatement pstmt = conn.prepareStatement(" select * from st_course where id=? ");
+		PreparedStatement pstmt = conn.prepareStatement(" select * from st_timetable where id=? ");
 		pstmt.setLong(1, id);
 		ResultSet rs = pstmt.executeQuery();
-		CourseBean bean = null;
+		TimetableBean bean = null;
 		while (rs.next()) {
-			bean = new CourseBean();
+			bean = new TimetableBean();
 			bean.setId(rs.getLong(1));
-			bean.setName(rs.getString(2));
-			bean.setDuration(rs.getString(3));
-			bean.setDescription(rs.getString(4));
-			bean.setCreatedBy(rs.getString(5));
-			bean.setModifiedBy(rs.getString(6));
-			bean.setCreatedDatetime(rs.getTimestamp(7));
-			bean.setModifiedDatetime(rs.getTimestamp(8));
+			bean.setSemester(rs.getString(2));
+			bean.setDescription(rs.getString(3));
+			bean.setExamDate(rs.getDate(4));
+			bean.setExamTime(rs.getString(5));
+			bean.setCourseId(rs.getLong(6));
+			bean.setCourseName(rs.getString(7));
+			bean.setSubjectId(rs.getLong(8));
+			bean.setSubjectName(rs.getString(9));
+		    bean.setCreatedBy(rs.getString(10));
+			bean.setModifiedBy(rs.getString(11));
+			bean.setCreatedDatetime(rs.getTimestamp(12));
+			bean.setModifiedDatetime(rs.getTimestamp(13));
 		}
 		return bean;
 
 	}
 
-	public List search(CourseBean bean, int pageNo, int pageSize) throws Exception {
+	public List search(TimetableBean bean, int pageNo, int pageSize) throws Exception {
 		Connection conn = JDBCDataSource.getConnection();
 
-		StringBuffer sql = new StringBuffer(" select * from st_course where 1=1 ");
+		StringBuffer sql = new StringBuffer(" select * from st_timetable where 1=1 ");
 
 		if (bean != null) {
 
 			if (bean.getId() > 0) {
 				sql.append(" and id = " + bean.getId());
-			}
-			if (bean.getName() != null && bean.getName().length() > 0) {
-				sql.append(" and name like '" + bean.getName() + "%'");
-			}
-			if (bean.getDuration() != null && bean.getDuration().length() > 0) {
-				sql.append(" and duration like '" + bean.getDuration() + "%'");
-			}
+			
 		}
 		if (pageSize > 0) {
 
 			pageNo = (pageNo - 1) * pageSize;
 			sql.append(" limit " + pageNo + " ," + pageSize);
+		}
 		}
 		System.out.println("sql==>" + sql);
 
@@ -128,18 +130,27 @@ public class TimetableModel {
 		ResultSet rs = pstmt.executeQuery();
 		List list = new ArrayList();
 		while (rs.next()) {
-			bean = new CourseBean();
+			bean = new TimetableBean();
 			bean.setId(rs.getLong(1));
-			bean.setName(rs.getString(2));
-			bean.setDuration(rs.getString(3));
-			bean.setDescription(rs.getString(4));
-			bean.setCreatedBy(rs.getString(5));
-			bean.setModifiedBy(rs.getString(6));
-			bean.setCreatedDatetime(rs.getTimestamp(7));
-			bean.setModifiedDatetime(rs.getTimestamp(8));
+			bean.setSemester(rs.getString(2));
+			bean.setDescription(rs.getString(3));
+			bean.setExamDate(rs.getDate(4));
+			bean.setExamTime(rs.getString(5));
+			bean.setCourseId(rs.getLong(6));
+			bean.setCourseName(rs.getString(7));
+			bean.setSubjectId(rs.getLong(8));
+			bean.setSubjectName(rs.getString(9));
+		    bean.setCreatedBy(rs.getString(10));
+			bean.setModifiedBy(rs.getString(11));
+			bean.setCreatedDatetime(rs.getTimestamp(12));
+			bean.setModifiedDatetime(rs.getTimestamp(13));
 			list.add(bean);
 		}
 		return list;
 
+		}
+	
 	}
-}
+	
+
+	

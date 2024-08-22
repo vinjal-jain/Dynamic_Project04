@@ -36,7 +36,7 @@ public class CourseModel {
 		pstmt.setTimestamp(8, bean.getModifiedDatetime());
 		
 		int i = pstmt.executeUpdate();
-		System.out.println("query added===>" + i);
+		System.out.println("Data added===>" + i);
 
 	}
 
