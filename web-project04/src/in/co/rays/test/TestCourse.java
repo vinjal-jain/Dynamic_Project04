@@ -62,25 +62,7 @@ public class TestCourse {
 		model.delete(1);
 	}
 
-		public static void testFindByPk() throws Exception {
-			CourseModel model = new CourseModel();
-			CourseBean bean = model.findByPk(1);
-			if (bean != null) {
-				System.out.print(" " + bean.getId());
-				System.out.print(" " + bean.getName());
-				System.out.print(" " + bean.getDuration());
-				System.out.print(" " + bean.getDescription());
-				System.out.print(" " + bean.getCreatedBy());
-				System.out.print(" " + bean.getModifiedBy());
-				System.out.print(" " + bean.getCreatedDatetime());
-				System.out.print(" " + bean.getModifiedDatetime());
-			} else {
-				System.out.println(" id not found ");
-			}
-			
-
-		}
-
+		
 		public static void testSearch() throws Exception {
 
 		CourseBean bean = new CourseBean();

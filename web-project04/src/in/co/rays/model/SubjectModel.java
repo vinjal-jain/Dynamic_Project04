@@ -6,7 +6,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import in.co.rays.bean.CollegeBean;
+import in.co.rays.bean.StudentBean;
 import in.co.rays.bean.SubjectBean;
+import in.co.rays.exception.DuplicateRecordException;
 import in.co.rays.util.JDBCDataSource;
 
 public class SubjectModel {
@@ -34,13 +38,22 @@ public class SubjectModel {
 
 	public void add(SubjectBean bean) throws Exception {
 
-		long pk = nextPk();
+		SubjectBean existBean = findByName(bean.getName()) ;
+		
+		if (existBean != null )
+		{
+			throw new DuplicateRecordException("Name is already exist !");
+		}
+		
+		CollegeModel model = new CollegeModel();
+		CollegeBean collegeBean = model.findbypk(bean.getCourseId());
+		bean.setName(collegeBean.getName());
 
 		Connection conn = JDBCDataSource.getConnection();
 
 		PreparedStatement pstmt = conn.prepareStatement("insert into st_subject values(?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-		pstmt.setLong(1, pk);
+		pstmt.setLong(1,nextPk());
 		pstmt.setString(2, bean.getName());
 		pstmt.setLong(3,bean.getCourseId());
 		pstmt.setString(4,bean.getCourseName());
@@ -60,8 +73,13 @@ public class SubjectModel {
 	}
 
 	public void update(SubjectBean bean) throws Exception {
-
-		Connection conn = JDBCDataSource.getConnection();
+		 SubjectBean existBean = findByName(bean.getName()) ;
+	 		
+	 		if (existBean != null && bean.getId() != existBean.getId())
+	 		{
+	 			throw new DuplicateRecordException("Name is already exist !");
+	 		}
+	 		Connection conn = JDBCDataSource.getConnection();
 
 		PreparedStatement pstmt = conn.prepareStatement(
 				"update st_subject set name = ?,course_id = ?, course_name= ?, description = ?, createdBy = ?, modifiedBy = ?, createdDatetime = ?, modifiedDatetime = ? where id = ?");

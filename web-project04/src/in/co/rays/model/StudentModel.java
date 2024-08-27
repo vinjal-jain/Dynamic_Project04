@@ -5,7 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+
+import in.co.rays.bean.FacultyBean;
 import in.co.rays.bean.StudentBean;
+import in.co.rays.exception.DuplicateRecordException;
 import in.co.rays.util.JDBCDataSource;
 
 public class StudentModel {
@@ -32,15 +35,18 @@ public class StudentModel {
 	}
 
 	public void add(StudentBean bean) throws Exception {
-
-		long pk = nextPk();
-
-		Connection conn = JDBCDataSource.getConnection();
+		 StudentBean existBean = findByEmail(bean.getEmail()) ;
+			
+			if (existBean != null )
+			{
+				throw new DuplicateRecordException("Email id is already exist !");
+			}
+        Connection conn = JDBCDataSource.getConnection();
 
 		PreparedStatement pstmt = conn
 				.prepareStatement("insert into st_student values( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?, ?, ?)");
 
-		pstmt.setLong(1, pk);
+		pstmt.setLong(1, nextPk());
 		pstmt.setString(2, bean.getFirstName());
 		pstmt.setString(3, bean.getLastName());
 		pstmt.setDate(4, new java.sql.Date(bean.getDob().getTime()));
@@ -63,6 +69,13 @@ public class StudentModel {
 	}
 
 	public void update(StudentBean bean) throws Exception {
+    StudentBean existBean = findByEmail(bean.getEmail()) ;
+	 		
+	 		if (existBean != null && bean.getId() != existBean.getId())
+	 		{
+	 			throw new DuplicateRecordException("Email id is already exist !");
+	 		}
+
 
 		Connection conn = JDBCDataSource.getConnection();
 
@@ -141,6 +154,43 @@ public class StudentModel {
 
 		return bean;
 	}
+	
+
+	public StudentBean findByEmail(String email) throws Exception {
+
+		Connection conn = JDBCDataSource.getConnection();
+
+		PreparedStatement pstmt = conn.prepareStatement("select * from st_student where email = ?");
+
+		pstmt.setString(1, email);
+
+		ResultSet rs = pstmt.executeQuery();
+
+		StudentBean bean = null;
+
+		while (rs.next()) {
+			bean = new StudentBean();
+			bean.setId(rs.getLong(1));
+			bean.setFirstName(rs.getString(2));
+			bean.setLastName(rs.getString(3));
+			bean.setDob(rs.getDate(4));
+			bean.setGender(rs.getString(5));
+			bean.setMobileNo(rs.getString(6));
+			bean.setEmail(rs.getString(7));
+			bean.setCollegeId(rs.getLong(8));
+			bean.setCollegeName(rs.getString(9));
+			bean.setCreatedBy(rs.getString(10));
+			bean.setModifiedBy(rs.getString(11));
+			bean.setCreatedDatetime(rs.getTimestamp(12));
+			bean.setModifiedDatetime(rs.getTimestamp(13));
+
+		}
+
+		JDBCDataSource.closeConnection(conn);
+
+		return bean;
+	}
+	
 
 	public List search(StudentBean bean, int pageNo, int pageSize) throws Exception {
 		Connection conn = JDBCDataSource.getConnection();

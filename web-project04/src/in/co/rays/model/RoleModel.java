@@ -6,7 +6,9 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import in.co.rays.bean.CollegeBean;
 import in.co.rays.bean.RoleBean;
+import in.co.rays.exception.DuplicateRecordException;
 import in.co.rays.util.JDBCDataSource;
 
 public class RoleModel {
@@ -33,14 +35,16 @@ public class RoleModel {
 	}
 
 	public void add(RoleBean bean) throws Exception {
-
-		long pk = nextPk();
-
+		
+		RoleBean existBean = findByName(bean.getName());
+		if (existBean != null) {
+			throw new DuplicateRecordException(" Name already exist");
+		}
 		Connection conn = JDBCDataSource.getConnection();
 
 		PreparedStatement pstmt = conn.prepareStatement("insert into st_role values(?, ?, ?, ?, ?, ?, ?)");
 
-		pstmt.setLong(1, pk);
+		pstmt.setLong(1, nextPk());
 		pstmt.setString(2, bean.getName());
 		pstmt.setString(3, bean.getDescription());
 		pstmt.setString(4, bean.getCreatedBy());
@@ -58,8 +62,13 @@ public class RoleModel {
 	}
 
 	public void update(RoleBean bean) throws Exception {
+		RoleBean existBean = findByName(bean.getName());
 
-		Connection conn = JDBCDataSource.getConnection();
+		if (existBean != null && existBean.getId() != bean.getId()) {
+
+			throw new DuplicateRecordException("Name is already exist");
+		}
+         Connection conn = JDBCDataSource.getConnection();
 
 		PreparedStatement pstmt = conn.prepareStatement(
 				"update st_role set name = ?, description = ?, createdBy = ?, modifiedBy = ?, createdDatetime = ?, modifiedDatetime = ? where id = ?");
@@ -96,6 +105,35 @@ public class RoleModel {
 
 		System.out.println("data deleted => " + i);
 
+	}
+	
+	public RoleBean findByName(String name) throws Exception {
+
+		Connection conn = JDBCDataSource.getConnection();
+
+		PreparedStatement pstmt = conn.prepareStatement("select * from st_role where name = ?");
+
+		pstmt.setString(1, name);
+
+		ResultSet rs = pstmt.executeQuery();
+
+		RoleBean bean = null;
+
+		while (rs.next()) {
+			bean = new RoleBean();
+			bean.setId(rs.getLong(1));
+			bean.setName(rs.getString(2));
+			bean.setDescription(rs.getString(3));
+			bean.setCreatedBy(rs.getString(4));
+			bean.setModifiedBy(rs.getString(5));
+			bean.setCreatedDatetime(rs.getTimestamp(6));
+			bean.setModifiedDatetime(rs.getTimestamp(7));
+			
+		}
+
+		JDBCDataSource.closeConnection(conn);
+
+		return bean;
 	}
 
 	public RoleBean findByPk(long id) throws Exception {

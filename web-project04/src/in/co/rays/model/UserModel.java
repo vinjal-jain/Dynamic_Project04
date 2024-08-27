@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import in.co.rays.bean.UserBean;
+import in.co.rays.exception.DuplicateRecordException;
 import in.co.rays.util.JDBCDataSource;
 
 public class UserModel {
@@ -22,11 +23,18 @@ public class UserModel {
 	}
 
 	public void add(UserBean bean) throws Exception {
-		int pk = (int) pk();
+		
+UserBean existBean = findByLogin(bean.getLogin()) ;
+		
+		if (existBean != null )
+		{
+			throw new DuplicateRecordException("Login id is already exist !");
+		}
+			
 		Connection conn = JDBCDataSource.getConnection();
 		PreparedStatement stmt = conn.prepareStatement(" insert into st_user values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
-		stmt.setLong(1, pk);
+		stmt.setLong(1, pk());
 		stmt.setString(2, bean.getFirstName());
 		stmt.setString(3, bean.getLastName());
 		stmt.setString(4, bean.getLogin());
@@ -42,14 +50,22 @@ public class UserModel {
 		stmt.setTimestamp(14, bean.getModifiedDatetime());
 		int i = stmt.executeUpdate();
 		JDBCDataSource.closeConnection(conn);
-		System.out.println("query added=>" + i);
+		System.out.println("Data added=>" + i);
 
 	}
 
 	public void update(UserBean bean) throws Exception {
+		
+		UserBean existBean = findByLogin(bean.getLogin()) ;
+		
+		if (existBean != null && bean.getId() != existBean.getId())
+		{
+			throw new DuplicateRecordException("Login id is already exist !");
+		}
+			
 		Connection conn = JDBCDataSource.getConnection();
 		PreparedStatement stmt = conn.prepareStatement(
-				" update st_user set first_name=?,last_name=?,login=?,password=? , confirm_password=?,dob=?,mobile_no=?,role_id=?,gender=?,created_by=?,modified_by=? ,created_datetime=?,modified_datetime=? where id =? ");
+				"update st_user set first_name=?, last_name=?, login=?, password=?, confirm_password=?, dob=?, mobile_no=?, role_id=?, gender=?, created_by=?, modified_by=?, created_datetime=?, modified_datetime=? where id =?");
 		stmt.setString(1, bean.getFirstName());
 		stmt.setString(2, bean.getLastName());
 		stmt.setString(3, bean.getLogin());
@@ -135,6 +151,35 @@ public class UserModel {
 		return bean;
 
 	}
+	
+	public UserBean findByLogin(String login) throws Exception {
+		Connection conn = JDBCDataSource.getConnection();
+		PreparedStatement stmt = conn.prepareStatement(" select * from st_user where login=? ");
+		stmt.setString(1, login);
+		
+		ResultSet rs = stmt.executeQuery();
+		UserBean bean = null;
+		while (rs.next()) {
+			bean = new UserBean();
+			bean.setId(rs.getLong(1));
+			bean.setFirstName(rs.getString(2));
+			bean.setLastName(rs.getString(3));
+			bean.setLogin(rs.getString(4));
+			bean.setPassword(rs.getString(5));
+			bean.setConfirmPassword(rs.getString(6));
+			bean.setDob(rs.getDate(7));
+			bean.setMobileNo(rs.getString(8));
+			bean.setRoleId(rs.getLong(9));
+			bean.setGender(rs.getString(10));
+			bean.setCreatedBy(rs.getString(11));
+			bean.setModifiedBy(rs.getString(12));
+			bean.setCreatedDatetime(rs.getTimestamp(13));
+			bean.setModifiedDatetime(rs.getTimestamp(14));
+		}
+		return bean;
+
+	}
+
 
 	public List search(UserBean bean, int pageNo, int pageSize) throws Exception {
 		Connection conn = JDBCDataSource.getConnection();

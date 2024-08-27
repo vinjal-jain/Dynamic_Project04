@@ -12,8 +12,8 @@ import in.co.rays.model.UserModel;
 public class TestUser {
 	public static void main(String[] args) throws Exception {
 		// testSearch();
-		//testAdd();
-		 testUpdate();
+		testAdd();
+		//testUpdate();
 		// testDelete();
 		// testfindByPk();
 		// testAuth();
@@ -22,9 +22,9 @@ public class TestUser {
 	public static void testAdd() throws Exception {
 		UserBean bean = new UserBean();
 
-		bean.setFirstName("Rohit");
+		bean.setFirstName("raj");
 		bean.setLastName("Bais");
-		bean.setLogin("rohit03@gmail.com");
+		bean.setLogin("rohit@gmail.com");
 		bean.setPassword("12345");
 		bean.setConfirmPassword("12345");
 		bean.setDob(new Date());
@@ -45,7 +45,7 @@ public class TestUser {
 
 		bean.setFirstName("Sandeep");
 		bean.setLastName("Verma");
-		bean.setLogin("sandeep@gmail.com");
+		bean.setLogin("rohit@gmail.com");
 		bean.setPassword("1432");
 		bean.setConfirmPassword("1432");
 		bean.setDob(new Date());
@@ -56,7 +56,7 @@ public class TestUser {
 		bean.setModifiedBy("auth");
 		bean.setCreatedDatetime(new Timestamp(new Date().getTime()));
 		bean.setModifiedDatetime(new Timestamp(new Date().getTime()));
-		bean.setId(103);
+		bean.setId(2);
 		UserModel model = new UserModel();
 		model.update(bean);
 	}

@@ -24,7 +24,7 @@ public class CollegeModel {
 	}
 
 	public void add(CollegeBean bean) throws Exception {
-		long pk = nextpk();
+		
 
 		CollegeBean existBean = findByName(bean.getName());
 		if (existBean != null) {
@@ -33,7 +33,7 @@ public class CollegeModel {
 
 		Connection conn = JDBCDataSource.getConnection();
 		PreparedStatement pstmt = conn.prepareStatement("insert into st_college values(?,?,?,?,?,?,?,?,?,?)");
-		pstmt.setLong(1, pk);
+		pstmt.setLong(1, nextpk());
 		pstmt.setString(2, bean.getName());
 		pstmt.setString(3, bean.getAddress());
 		pstmt.setString(4, bean.getState());
